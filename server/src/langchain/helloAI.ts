@@ -1,26 +1,14 @@
 import "dotenv/config";
 import { ChatOpenAI } from "@langchain/openai";
 import { PromptTemplate } from "@langchain/core/prompts";
+import { StringOutputParser } from "@langchain/core/output_parsers";
+import { RunnableSequence } from "@langchain/core/runnables";
 
 const model = new ChatOpenAI({
   model: "gpt-4o-mini",
 });
 
-// const promptTemplate = new PromptTemplate({
-//   template: `
-// You are Hiba AI Assistant.
-
-// Use only the following information about Hiba:
-
-// {context}
-
-// Question:
-// {question}
-
-// Answer in simple language.
-// `,
-//   inputVariables: ["context", "question"],
-// });
+const outputParser = new StringOutputParser();
 
 const promptTemplate = new PromptTemplate({
   template: `
@@ -43,6 +31,16 @@ Rules:
   inputVariables: ["context", "question"],
 });
 
+// const chain = promptTemplate
+//   .pipe(model)
+//   .pipe(outputParser);
+
+const chain = RunnableSequence.from([
+  promptTemplate,
+  model,
+  outputParser,
+]);
+
 async function askHiba(question: string) {
   const hibaInfo = `
     Hiba likes drawing.
@@ -50,19 +48,17 @@ async function askHiba(question: string) {
     Hiba likes playing with building blocks.
   `;
 
-  const formattedPrompt = await promptTemplate.format({
+  const answer = await chain.invoke({
     context: hibaInfo,
     question,
   });
 
-  const response = await model.invoke(formattedPrompt);
-
-  return response.content;
+  return answer;
 }
 
 async function run() {
   const answer = await askHiba(
-     "What is Hiba's favorite color?"
+    "What activities does Hiba enjoy?"
   );
 
   console.log(answer);
