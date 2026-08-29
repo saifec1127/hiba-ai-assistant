@@ -1,0 +1,31 @@
+export type HibaDataFile = {
+  fileName: string;
+  category: string;
+};
+
+export const hibaDataFiles: HibaDataFile[] = [
+  {
+    fileName: "hiba-basic-profile.md",
+    category: "basic-profile",
+  },
+  {
+    fileName: "hiba-preferences-habits.md",
+    category: "preferences-habits",
+  },
+  {
+    fileName: "hiba-paternal-family.md",
+    category: "paternal-family",
+  },
+  {
+    fileName: "hiba-maternal-family.md",
+    category: "maternal-family",
+  },
+  {
+    fileName: "hiba-extended-family.md",
+    category: "extended-family",
+  },
+  {
+    fileName: "hiba-words-nicknames.md",
+    category: "words-nicknames",
+  },
+];

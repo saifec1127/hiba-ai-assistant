@@ -1,22 +1,35 @@
 import fs from "fs/promises";
 import path from "path";
+
 import { Document } from "@langchain/core/documents";
 
+import { hibaDataFiles } from "./hibaDataFiles";
+
 export async function loadHibaDocuments() {
-  const filePath = path.resolve(
-    process.cwd(),
-    "../data/hiba-profile.md"
-  );
+  const documents: Document[] = [];
 
-  const content = await fs.readFile(filePath, "utf-8");
+  for (const dataFile of hibaDataFiles) {
+    const filePath = path.resolve(
+      process.cwd(),
+      "../data",
+      dataFile.fileName
+    );
 
-  const document = new Document({
-    pageContent: content,
-    metadata: {
-      source: filePath,
-      type: "hiba-profile",
-    },
-  });
+    const content = await fs.readFile(
+      filePath,
+      "utf-8"
+    );
 
-  return [document];
+    const document = new Document({
+      pageContent: content,
+      metadata: {
+        source: dataFile.fileName,
+        category: dataFile.category,
+      },
+    });
+
+    documents.push(document);
+  }
+
+  return documents;
 }

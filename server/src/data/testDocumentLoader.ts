@@ -1,20 +1,43 @@
 import "dotenv/config";
 
-import { loadHibaDocuments } from "./hibaDocumentLoader";
+import {
+  loadHibaDocuments
+} from "./hibaDocumentLoader";
 
 async function run() {
-  const documents = await loadHibaDocuments();
+  const documents =
+    await loadHibaDocuments();
 
-  console.log("Total Documents:", documents.length);
+  console.log(
+    "Total Documents:",
+    documents.length
+  );
 
-const firstDocument = documents[0];
+  documents.forEach(
+    (document, index) => {
+      console.log(
+        `\nDocument ${index + 1}`
+      );
 
-if (!firstDocument) {
-  throw new Error("No document was loaded.");
-}
+      console.log(
+        "Source:",
+        document.metadata.source
+      );
 
-console.log(firstDocument.pageContent);
-console.log(firstDocument.metadata);
+      console.log(
+        "Category:",
+        document.metadata.category
+      );
+
+      console.log(
+        "Content:"
+      );
+
+      console.log(
+        document.pageContent
+      );
+    }
+  );
 }
 
 run();
