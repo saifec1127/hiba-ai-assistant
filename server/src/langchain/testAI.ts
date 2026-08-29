@@ -1,11 +1,10 @@
 import "dotenv/config";
 
 import { askHiba } from "./askHiba";
-import { getChatHistory } from "./chatHistory";
 
 async function run() {
   const sessionId =
-    "test-session-1";
+    "rewrite-test-session";
 
   const answer1 =
     await askHiba(
@@ -13,10 +12,7 @@ async function run() {
       sessionId
     );
 
-  console.log(
-    "\nAnswer 1:"
-  );
-
+  console.log("\nAnswer 1:");
   console.log(answer1);
 
   const answer2 =
@@ -25,21 +21,8 @@ async function run() {
       sessionId
     );
 
-  console.log(
-    "\nAnswer 2:"
-  );
-
+  console.log("\nAnswer 2:");
   console.log(answer2);
-
-  console.log(
-    "\nChat History:"
-  );
-
-  console.log(
-    getChatHistory(
-      sessionId
-    )
-  );
 }
 
 run();
