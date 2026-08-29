@@ -12,18 +12,21 @@ async function run() {
     return chunk.pageContent;
   });
 
-  const vectors = await embeddings.embedDocuments(chunkTexts);
+const vectors = await embeddings.embedDocuments(chunkTexts);
 
-  console.log("Total vectors:", vectors.length);
+console.log("Total vectors:", vectors.length);
 
-  console.log("First chunk:");
-  console.log(chunkTexts[0]);
+const firstVector = vectors[0];
 
-  console.log("\nFirst vector length:");
-  console.log(vectors[0].length);
+if (!firstVector) {
+  throw new Error("No embedding vector was generated.");
+}
 
-  console.log("\nFirst few vector values:");
-  console.log(vectors[0].slice(0, 10));
+console.log("First vector length:");
+console.log(firstVector.length);
+
+console.log("First few vector values:");
+console.log(firstVector.slice(0, 10));
 }
 
 run();

@@ -7,11 +7,14 @@ async function run() {
 
   console.log("Total Documents:", documents.length);
 
-  console.log("\nPage Content:");
-  console.log(documents[0].pageContent);
+const firstDocument = documents[0];
 
-  console.log("\nMetadata:");
-  console.log(documents[0].metadata);
+if (!firstDocument) {
+  throw new Error("No document was loaded.");
+}
+
+console.log(firstDocument.pageContent);
+console.log(firstDocument.metadata);
 }
 
 run();
