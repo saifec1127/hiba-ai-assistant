@@ -1,98 +1,155 @@
-import { useState } from "react";
-import { useLazyQuery } from "@apollo/client/react";
+import ChatMessage from "./ChatMessage";
 
-import { ASK_HIBA } from "../graphql/queries";
+import { useHibaChat } from "../hooks/useHibaChat";
 
-type AskHibaData = {
-  askHiba: {
-    answer: string;
-  };
-};
-
-type AskHibaVariables = {
-  question: string;
-  sessionId: string;
-};
-
-const sessionId =
-  "hiba-web-session";
+import "../styles/HibaChat.css";
 
 function HibaChat() {
-  const [question, setQuestion] =
-    useState("");
-
-  const [
-    askHiba,
-    {
-      data,
-      loading,
-      error,
-    },
-  ] = useLazyQuery<
-    AskHibaData,
-    AskHibaVariables
-  >(ASK_HIBA);
-
-  const handleAsk = async () => {
-    const cleanQuestion =
-      question.trim();
-
-    if (!cleanQuestion) {
-      return;
-    }
-
-    await askHiba({
-      variables: {
-        question: cleanQuestion,
-        sessionId,
-      },
-    });
-
-    setQuestion("");
-  };
+  const {
+    question,
+    messages,
+    loading,
+    error,
+    handleQuestionChange,
+    handleAsk,
+    handleKeyDown,
+    clearMessages,
+  } = useHibaChat();
 
   return (
-    <div>
-      <h1>Hiba AI Assistant</h1>
+    <div className="chat-page">
+      <div className="chat-container">
 
-      <input
-        type="text"
-        value={question}
-        placeholder="Ask something about Hiba..."
-        onChange={(event) =>
-          setQuestion(
-            event.target.value
-          )
-        }
-      />
+        <header className="chat-header">
+          <div className="header-left">
+            <div className="header-avatar">
+              H
+            </div>
 
-      <button
-        onClick={handleAsk}
-        disabled={loading}
-      >
-        {loading
-          ? "Asking..."
-          : "Ask Hiba"}
-      </button>
+            <div>
+              <h1>
+                Hiba AI Assistant
+              </h1>
 
-      {error && (
-        <p>
-          Something went wrong.
-        </p>
-      )}
+              <p>
+                Your personal AI assistant for Hiba
+              </p>
+            </div>
+          </div>
 
-      {data && (
-        <div>
-          <h2>Answer</h2>
+          {messages.length > 0 && (
+            <button
+              className="clear-button"
+              onClick={clearMessages}
+            >
+              Clear Chat
+            </button>
+          )}
+        </header>
 
-          <p>
-            {
-              data.askHiba
-                .answer
-            }
-          </p>
-        </div>
-      )}
+        <main className="messages-container">
+
+          {messages.length === 0 ? (
+            <div className="welcome-section">
+
+              <div className="welcome-icon">
+                ✨
+              </div>
+
+              <h2>
+                Ask me about Hiba
+              </h2>
+
+              <p>
+                I can answer questions about
+                Hiba's family, preferences,
+                activities and travels.
+              </p>
+
+              <div className="suggestion-list">
+
+                <div className="suggestion">
+                  Where has Hiba travelled?
+                </div>
+
+                <div className="suggestion">
+                  What food does Hiba like?
+                </div>
+
+                <div className="suggestion">
+                  Who are Hiba's parents?
+                </div>
+
+              </div>
+            </div>
+          ) : (
+            messages.map((message) => (
+              <ChatMessage
+                key={message.id}
+                message={message}
+              />
+            ))
+          )}
+
+          {loading && (
+            <div className="message-row message-row-assistant">
+              <div className="message-avatar">
+                H
+              </div>
+
+              <div className="message-bubble assistant-message">
+                Thinking...
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="error-message">
+              Something went wrong.
+              Please try again.
+            </div>
+          )}
+
+        </main>
+
+        <footer className="chat-footer">
+
+          <div className="input-container">
+
+            <input
+              value={question}
+              placeholder="Ask something about Hiba..."
+              onChange={(event) =>
+                handleQuestionChange(
+                  event.target.value
+                )
+              }
+              onKeyDown={handleKeyDown}
+            />
+
+            <button
+              onClick={() =>
+                void handleAsk()
+              }
+              disabled={
+                loading ||
+                !question.trim()
+              }
+            >
+              {loading
+                ? "..."
+                : "Ask"}
+            </button>
+
+          </div>
+
+          <div className="technology-text">
+            Powered by LangChain • RAG • OpenAI
+          </div>
+
+        </footer>
+
+      </div>
     </div>
   );
 }
