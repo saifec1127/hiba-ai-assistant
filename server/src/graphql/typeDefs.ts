@@ -4,6 +4,9 @@ export const typeDefs = `#graphql
   }
 
   type Query {
-    askHiba(question: String!): AIResponse!
+    askHiba(
+      question: String!
+      sessionId: String!
+    ): AIResponse!
   }
 `;
