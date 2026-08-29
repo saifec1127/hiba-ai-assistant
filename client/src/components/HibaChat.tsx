@@ -11,26 +11,44 @@ type AskHibaData = {
 
 type AskHibaVariables = {
   question: string;
+  sessionId: string;
 };
 
-function HibaChat() {
-  const [question, setQuestion] = useState("");
+const sessionId =
+  "hiba-web-session";
 
-  const [askHiba, { data, loading, error }] = useLazyQuery<
+function HibaChat() {
+  const [question, setQuestion] =
+    useState("");
+
+  const [
+    askHiba,
+    {
+      data,
+      loading,
+      error,
+    },
+  ] = useLazyQuery<
     AskHibaData,
     AskHibaVariables
   >(ASK_HIBA);
 
   const handleAsk = async () => {
-    if (!question.trim()) {
+    const cleanQuestion =
+      question.trim();
+
+    if (!cleanQuestion) {
       return;
     }
 
     await askHiba({
       variables: {
-        question,
+        question: cleanQuestion,
+        sessionId,
       },
     });
+
+    setQuestion("");
   };
 
   return (
@@ -41,19 +59,38 @@ function HibaChat() {
         type="text"
         value={question}
         placeholder="Ask something about Hiba..."
-        onChange={(event) => setQuestion(event.target.value)}
+        onChange={(event) =>
+          setQuestion(
+            event.target.value
+          )
+        }
       />
 
-      <button onClick={handleAsk} disabled={loading}>
-        {loading ? "Asking..." : "Ask Hiba"}
+      <button
+        onClick={handleAsk}
+        disabled={loading}
+      >
+        {loading
+          ? "Asking..."
+          : "Ask Hiba"}
       </button>
 
-      {error && <p>Something went wrong.</p>}
+      {error && (
+        <p>
+          Something went wrong.
+        </p>
+      )}
 
       {data && (
         <div>
           <h2>Answer</h2>
-          <p>{data.askHiba.answer}</p>
+
+          <p>
+            {
+              data.askHiba
+                .answer
+            }
+          </p>
         </div>
       )}
     </div>
