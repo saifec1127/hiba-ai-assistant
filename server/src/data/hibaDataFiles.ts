@@ -28,4 +28,8 @@ export const hibaDataFiles: HibaDataFile[] = [
     fileName: "hiba-words-nicknames.md",
     category: "words-nicknames",
   },
+  {
+    fileName: "hiba-travel-journeys.md",
+    category: "travel-journeys",
+  },
 ];

@@ -49,3 +49,29 @@
 ## Outdoor Activities
 
 - Hiba enjoys spending time outside with family.
+
+## Parks and Outdoor Activities
+
+- Hiba loves going to parks.
+- Hiba enjoys walking and playing in parks.
+- Hiba enjoys using the outdoor exercise machines installed in parks.
+- When she sees exercise equipment in a park, she likes using it.
+- Hiba enjoys going outside and visiting different places.
+
+## Travelling
+
+- Hiba enjoys travelling.
+- Hiba likes going on outings and family trips.
+- She has travelled to several cities with her family.
+
+## Food Preferences
+
+- Hiba likes pizza.
+- Hiba likes burgers.
+- Pizza and burgers are among the foods she enjoys.
+
+## McDonald's
+
+- Hiba enjoys visiting McDonald's.
+- When Hiba sees a McDonald's while she is out, she often wants to stop there.
+- She asks her father to get food for her at McDonald's.
