@@ -1,11 +1,15 @@
 import { embeddings } from "./embeddings";
 import { splitHibaDocuments } from "../data/hibaTextSplitter";
 
-type VectorRecord = {
+export type VectorRecord = {
   pageContent: string;
   metadata: Record<string, unknown>;
   vector: number[];
 };
+
+let hibaVectorStore: VectorRecord[] | null = null;
+
+let initializationPromise: Promise<VectorRecord[]> | null = null;
 
 function cosineSimilarity(
   vectorA: number[],
@@ -42,15 +46,14 @@ function cosineSimilarity(
   return dotProduct / denominator;
 }
 
-export async function createHibaVectorStore() {
+async function createHibaVectorStore(): Promise<VectorRecord[]> {
+  console.log("Creating Hiba vector store...");
+
   const chunks = await splitHibaDocuments();
 
-  const texts = chunks.map(
-    (chunk) => chunk.pageContent
-  );
+  const texts = chunks.map((chunk) => chunk.pageContent);
 
-  const vectors =
-    await embeddings.embedDocuments(texts);
+  const vectors = await embeddings.embedDocuments(texts);
 
   const vectorStore: VectorRecord[] = chunks.map(
     (chunk, index) => {
@@ -70,32 +73,52 @@ export async function createHibaVectorStore() {
     }
   );
 
+  console.log(
+    `Hiba vector store created with ${vectorStore.length} vectors.`
+  );
+
   return vectorStore;
+}
+
+export async function initializeHibaVectorStore(): Promise<
+  VectorRecord[]
+> {
+  if (hibaVectorStore) {
+    return hibaVectorStore;
+  }
+
+  if (initializationPromise) {
+    return initializationPromise;
+  }
+
+  initializationPromise = createHibaVectorStore();
+
+  try {
+    hibaVectorStore = await initializationPromise;
+
+    return hibaVectorStore;
+  } finally {
+    initializationPromise = null;
+  }
 }
 
 export async function searchHibaVectorStore(
   question: string,
   k = 2
 ) {
-  const vectorStore =
-    await createHibaVectorStore();
+  const vectorStore = await initializeHibaVectorStore();
 
-  const questionVector =
-    await embeddings.embedQuery(question);
+  const questionVector = await embeddings.embedQuery(question);
 
-  const scoredResults = vectorStore.map(
-    (record) => ({
-      ...record,
-      score: cosineSimilarity(
-        questionVector,
-        record.vector
-      ),
-    })
-  );
+  const scoredResults = vectorStore.map((record) => ({
+    ...record,
+    score: cosineSimilarity(
+      questionVector,
+      record.vector
+    ),
+  }));
 
-  scoredResults.sort(
-    (a, b) => b.score - a.score
-  );
+  scoredResults.sort((a, b) => b.score - a.score);
 
   return scoredResults.slice(0, k);
 }

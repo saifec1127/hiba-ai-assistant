@@ -4,7 +4,7 @@ import { askHiba } from "./askHiba";
 
 async function run() {
   const answer = await askHiba(
-    "What activities does Hiba enjoy?"
+    "What does Hiba enjoy playing with?"
   );
 
   console.log("AI Answer:");
