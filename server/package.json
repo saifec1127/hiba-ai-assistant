@@ -21,7 +21,7 @@
     "@langchain/openai": "^1.5.10",
     "@langchain/pinecone": "^1.0.3",
     "@langchain/textsplitters": "^1.0.1",
-    "@pinecone-database/pinecone": "^8.2.0",
+    "@pinecone-database/pinecone": "^5.1.2",
     "cors": "^2.8.6",
     "deepagents": "^1.13.1",
     "dotenv": "^16.4.5",
