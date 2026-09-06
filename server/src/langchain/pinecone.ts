@@ -2,11 +2,8 @@ import "dotenv/config";
 
 import { Pinecone } from "@pinecone-database/pinecone";
 
-const apiKey =
-  process.env.PINECONE_API_KEY;
-
-const indexName =
-  process.env.PINECONE_INDEX_NAME;
+const apiKey = process.env.PINECONE_API_KEY;
+const indexName = process.env.PINECONE_INDEX_NAME;
 
 if (!apiKey) {
   throw new Error(
@@ -26,6 +23,4 @@ export const pineconeClient =
   });
 
 export const pineconeIndex =
-  pineconeClient.index({
-    name: indexName,
-  });
+  pineconeClient.index(indexName);
