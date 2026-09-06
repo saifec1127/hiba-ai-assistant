@@ -1,27 +1,51 @@
 import "dotenv/config";
 
 import {
-  formatDocumentsAsContext,
   retrieveHibaDocuments,
 } from "./retriever";
 
 async function run() {
   const question =
-    "What does Hiba enjoy playing with?";
+    "Who is Hiba's father?";
 
-  const documents = await retrieveHibaDocuments(
-    question,
-    2
-  );
+  const documents =
+    await retrieveHibaDocuments(
+      question,
+      4
+    );
 
-  const context =
-    formatDocumentsAsContext(documents);
-
-  console.log("Question:");
+  console.log("\nQuestion:");
   console.log(question);
 
-  console.log("\nFinal Context:");
-  console.log(context);
+  console.log(
+    "\nRetrieved Documents:\n"
+  );
+
+  documents.forEach(
+    (document, index) => {
+      console.log(
+        `--- Result ${index + 1} ---`
+      );
+
+      console.log(
+        "Source:",
+        document.metadata.source
+      );
+
+      console.log(
+        "Category:",
+        document.metadata.category
+      );
+
+      console.log("Content:");
+
+      console.log(
+        document.pageContent
+      );
+
+      console.log();
+    }
+  );
 }
 
 run();

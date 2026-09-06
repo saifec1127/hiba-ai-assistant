@@ -1,81 +1,75 @@
-type ChatMessage = {
+export type ChatMessage = {
   role: "user" | "assistant";
   content: string;
 };
 
-const chatSessions = new Map<string, ChatMessage[]>();
+const chatSessions =
+  new Map<string, ChatMessage[]>();
 
-function getOrCreateSession(
-  sessionId: string
-): ChatMessage[] {
-  const existingHistory =
-    chatSessions.get(sessionId);
 
-  if (existingHistory) {
-    return existingHistory;
-  }
-
-  const newHistory: ChatMessage[] = [];
-
-  chatSessions.set(
-    sessionId,
-    newHistory
-  );
-
-  return newHistory;
-}
-
-export function addUserMessage(
-  sessionId: string,
-  content: string
-) {
-  const history =
-    getOrCreateSession(sessionId);
-
-  history.push({
-    role: "user",
-    content,
-  });
-}
-
-export function addAssistantMessage(
-  sessionId: string,
-  content: string
-) {
-  const history =
-    getOrCreateSession(sessionId);
-
-  history.push({
-    role: "assistant",
-    content,
-  });
-}
+// ========================================
+// Get chat history for a session
+// ========================================
 
 export function getChatHistory(
   sessionId: string
-) {
-  return getOrCreateSession(sessionId);
+): ChatMessage[] {
+  return (
+    chatSessions.get(sessionId) ?? []
+  );
 }
 
-export function formatChatHistory(
-  sessionId: string
-) {
+
+// ========================================
+// Add one message to chat history
+// ========================================
+
+export function addToChatHistory(
+  sessionId: string,
+  message: ChatMessage
+): void {
   const history =
-    getOrCreateSession(sessionId);
+    chatSessions.get(sessionId) ?? [];
+
+  history.push(message);
+
+  chatSessions.set(
+    sessionId,
+    history
+  );
+}
+
+
+// ========================================
+// Convert ChatMessage[] into string
+// ========================================
+
+export function formatChatHistory(
+  history: ChatMessage[]
+): string {
+  if (history.length === 0) {
+    return "";
+  }
 
   return history
     .map((message) => {
-      if (message.role === "user") {
-        return `User: ${message.content}`;
-      }
+      const speaker =
+        message.role === "user"
+          ? "User"
+          : "Assistant";
 
-      return `Assistant: ${message.content}`;
+      return `${speaker}: ${message.content}`;
     })
     .join("\n");
 }
 
+
+// ========================================
+// Clear one session
+// ========================================
+
 export function clearChatHistory(
   sessionId: string
-) {
+): void {
   chatSessions.delete(sessionId);
 }

@@ -1,44 +1,173 @@
 import {
-  addAssistantMessage,
-  addUserMessage,
+  formatDocumentsAsContext,
+  retrieveHibaDocuments,
+} from "./retriever";
+
+import {
+  hibaChain,
+} from "./chain";
+
+import {
+  addToChatHistory,
   formatChatHistory,
+  getChatHistory,
 } from "./chatHistory";
 
-import { formatDocumentsAsContext, retrieveHibaDocuments } from "./retriever";
+import {
+  rewriteQuestion,
+} from "./questionRewriter";
 
-import { rewriteQuestion } from "./questionRewriter";
-import { hibaChain } from "./chain";
 
-export async function askHiba(question: string, sessionId: string) {
-  const cleanQuestion = question.trim();
+export async function askHiba(
+  question: string,
+  sessionId: string
+) {
+  // ========================================
+  // STEP 1
+  // Current session ki chat history nikalo
+  // ========================================
 
-  if (!cleanQuestion) {
-    return "Please ask a question about Hiba.";
-  }
+  const history =
+    getChatHistory(sessionId);
 
-  const chatHistory = formatChatHistory(sessionId);
 
-  const standaloneQuestion = await rewriteQuestion(cleanQuestion, chatHistory);
+  // ========================================
+  // STEP 2
+  // Array history ko string me convert karo
+  // ========================================
 
-  console.log("Original Question:");
-  console.log(cleanQuestion);
+  const historyText =
+    formatChatHistory(history);
 
-  console.log("Standalone Question:");
-  console.log(standaloneQuestion);
 
-  const documents = await retrieveHibaDocuments(standaloneQuestion, 2);
+  // ========================================
+  // STEP 3
+  // Follow-up question ko standalone banao
+  // ========================================
 
-  const context = formatDocumentsAsContext(documents);
+  const standaloneQuestion =
+    await rewriteQuestion(
+      question,
+      historyText
+    );
 
-  const answer = await hibaChain.invoke({
-    chatHistory,
-    context,
-    question: cleanQuestion,
-  });
 
-  addUserMessage(sessionId, cleanQuestion);
+  console.log(
+    "\nOriginal Question:"
+  );
 
-  addAssistantMessage(sessionId, answer);
+  console.log(question);
+
+
+  console.log(
+    "\nChat History:"
+  );
+
+  console.log(
+    historyText || "No previous history"
+  );
+
+
+  console.log(
+    "\nStandalone Question:"
+  );
+
+  console.log(
+    standaloneQuestion
+  );
+
+
+  // ========================================
+  // STEP 4
+  // Pinecone se relevant documents lao
+  // ========================================
+
+  const documents =
+    await retrieveHibaDocuments(
+      standaloneQuestion,
+      4
+    );
+
+
+  // ========================================
+  // STEP 5
+  // Documents ko RAG context me convert karo
+  // ========================================
+
+  const context =
+    formatDocumentsAsContext(
+      documents
+    );
+
+
+  // ========================================
+  // Temporary debug logs
+  // ========================================
+
+  console.log(
+    "\n=============================="
+  );
+
+  console.log(
+    "RETRIEVED CONTEXT"
+  );
+
+  console.log(
+    "=============================="
+  );
+
+  console.log(context);
+
+  console.log(
+    "==============================\n"
+  );
+
+
+  // ========================================
+  // STEP 6
+  // Context + question LLM ko bhejo
+  // ========================================
+
+  const answer =
+    await hibaChain.invoke({
+      context,
+      question:
+        standaloneQuestion,
+    });
+
+
+  // ========================================
+  // STEP 7
+  // User message history me save karo
+  // ========================================
+
+  addToChatHistory(
+    sessionId,
+    {
+      role: "user",
+      content: question,
+    }
+  );
+
+
+  // ========================================
+  // STEP 8
+  // AI answer history me save karo
+  // ========================================
+
+  addToChatHistory(
+    sessionId,
+    {
+      role: "assistant",
+      content: answer,
+    }
+  );
+
+
+  // ========================================
+  // STEP 9
+  // Final answer return karo
+  // ========================================
 
   return answer;
 }

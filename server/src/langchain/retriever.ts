@@ -1,24 +1,30 @@
-import { searchHibaVectorStore } from "./vectorStore";
+import type { Document } from "@langchain/core/documents";
+
+import { getPineconeVectorStore } from "./pineconeVectorStore";
 
 export async function retrieveHibaDocuments(
   question: string,
-  k = 2
-) {
-  const results = await searchHibaVectorStore(question, k);
+  k = 4,
+): Promise<Document[]> {
+  const vectorStore = await getPineconeVectorStore();
 
-  return results.map((result) => ({
-    pageContent: result.pageContent,
-    metadata: result.metadata,
-  }));
+  const documents = await vectorStore.similaritySearch(question, k);
+
+  return documents;
 }
 
-export function formatDocumentsAsContext(
-  documents: {
-    pageContent: string;
-    metadata: Record<string, unknown>;
-  }[]
-) {
+export function formatDocumentsAsContext(documents: Document[]): string {
   return documents
-    .map((document) => document.pageContent)
+    .map(
+      (document, index) => `
+Document ${index + 1}
+
+Source:
+${String(document.metadata.source ?? "unknown")}
+
+Content:
+${document.pageContent}
+`,
+    )
     .join("\n\n");
 }

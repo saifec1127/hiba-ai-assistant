@@ -1,28 +1,61 @@
 import "dotenv/config";
 
-import { askHiba } from "./askHiba";
+import {
+  askHiba,
+} from "./askHiba";
+
 
 async function run() {
+  const question =
+    "Who is Hiba's father?";
+
   const sessionId =
-    "rewrite-test-session";
+    "pinecone-father-test";
 
-  const answer1 =
+
+  console.log(
+    "\n======================"
+  );
+
+  console.log(
+    "PINECONE RAG TEST"
+  );
+
+  console.log(
+    "======================"
+  );
+
+
+  console.log(
+    "\nQuestion:"
+  );
+
+  console.log(question);
+
+
+  const answer =
     await askHiba(
-      "What activities does Hiba enjoy?",
+      question,
       sessionId
     );
 
-  console.log("\nAnswer 1:");
-  console.log(answer1);
 
-  const answer2 =
-    await askHiba(
-      "What does she like to play with?",
-      sessionId
-    );
+  console.log(
+    "\nAI Answer:"
+  );
 
-  console.log("\nAnswer 2:");
-  console.log(answer2);
+  console.log(answer);
+
+
+  console.log(
+    "\n======================"
+  );
 }
 
-run();
+
+run().catch((error) => {
+  console.error(
+    "Test failed:",
+    error
+  );
+});

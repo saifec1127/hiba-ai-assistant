@@ -8,7 +8,8 @@
     "dev": "tsx watch src/index.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsup src/index.ts --format esm --platform node --out-dir dist --clean",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "index:hiba": "tsx src/langchain/indexHibaData.ts"
   },
   "keywords": [],
   "author": "",
@@ -18,7 +19,9 @@
     "@apollo/server": "^5.5.1",
     "@langchain/core": "^1.2.9",
     "@langchain/openai": "^1.5.10",
+    "@langchain/pinecone": "^1.0.3",
     "@langchain/textsplitters": "^1.0.1",
+    "@pinecone-database/pinecone": "^8.2.0",
     "cors": "^2.8.6",
     "deepagents": "^1.13.1",
     "dotenv": "^16.4.5",
