@@ -23,7 +23,7 @@ const contextValidationPrompt = new PromptTemplate({
   template: `
 You are a retrieval quality evaluator.
 
-Your job is to decide whether the retrieved context contains enough relevant information to answer the user's question.
+Your job is to determine whether the retrieved context contains enough information to COMPLETELY answer the user's question.
 
 Question:
 {question}
@@ -33,12 +33,32 @@ Retrieved Context:
 
 Rules:
 
-1. Return "GOOD" if the context contains information that can answer the question.
-2. Return "POOR" if the context is missing the required information.
-3. Do not answer the user's question.
-4. Return only one word:
+1. Return "GOOD" only if the context contains enough information to fully answer the question.
+
+2. Pay special attention to questions asking for:
+   - all names
+   - all people
+   - every item
+   - a list
+   - multiple entities
+
+3. If the question asks for multiple items, the context must contain enough information to provide the complete requested answer.
+
+4. Do not return "GOOD" merely because one partially relevant fact is present.
+
+5. Return "POOR" if:
+   - required information is missing,
+   - the context only partially answers the question,
+   - or the context is irrelevant.
+
+6. Do not answer the user's question.
+
+7. Return exactly one word:
+
 GOOD
+
 or
+
 POOR
 `,
   inputVariables: ["question", "context"],
@@ -131,6 +151,100 @@ export async function improveInputNode(state: GraphStateType) {
     retryCount,
   };
 }
+
+const responseValidationPrompt = new PromptTemplate({
+  template: `
+You are an answer quality evaluator.
+
+Your job is to determine whether the generated answer correctly and completely answers the user's question using only the retrieved context.
+
+User Question:
+{question}
+
+Retrieved Context:
+{context}
+
+Generated Answer:
+{answer}
+
+Rules:
+
+1. Return "GOOD" only if the answer is supported by the context.
+
+2. The answer must directly answer the user's question.
+
+3. The answer must not invent information.
+
+4. If the user asks for:
+   - all names
+   - all people
+   - every item
+   - a list
+   - multiple entities
+
+   then the answer must include all relevant information available in the context.
+
+5. Return "POOR" if the answer:
+   - misses important information,
+   - only partially answers the question,
+   - contains unsupported information,
+   - or does not directly answer the question.
+
+6. Do not rewrite or answer the question yourself.
+
+7. Return exactly one word:
+
+GOOD
+
+or
+
+POOR
+`,
+  inputVariables: ["question", "context", "answer"],
+});
+
+const responseValidationChain = responseValidationPrompt
+  .pipe(model)
+  .pipe(new StringOutputParser());
+
+const responseImprovementPrompt = new PromptTemplate({
+  template: `
+You are an AI assistant.
+
+The previous answer was incomplete or incorrect.
+
+User Question:
+{question}
+
+Retrieved Context:
+{context}
+
+Previous Answer:
+{previousAnswer}
+
+Generate a better answer.
+
+Rules:
+
+1. Use ONLY the retrieved context.
+
+2. Completely answer the user's question.
+
+3. Do not invent information.
+
+4. If the user asks for all names, all people, a list, or multiple items,
+   include every relevant item available in the context.
+
+5. Carefully inspect all retrieved documents, not just the first one.
+
+6. Return only the improved final answer.
+`,
+  inputVariables: ["question", "context", "previousAnswer"],
+});
+
+const responseImprovementChain = responseImprovementPrompt
+  .pipe(model)
+  .pipe(new StringOutputParser());
 
 // ========================================
 // NODE 1
@@ -235,6 +349,47 @@ export async function generateResponseNode(state: GraphStateType) {
 
   return {
     output,
+  };
+}
+
+export async function validateResponseNode(state: GraphStateType) {
+  const result = await responseValidationChain.invoke({
+    question: state.processedInput,
+    context: state.context,
+    answer: state.output,
+  });
+
+  const normalizedResult = result.trim().toUpperCase();
+
+  const isResponseValid = normalizedResult === "GOOD";
+
+  console.log("\nResponse Validation:", normalizedResult);
+
+  return {
+    isResponseValid,
+  };
+}
+
+export async function regenerateResponseNode(state: GraphStateType) {
+  const improvedOutput = await responseImprovementChain.invoke({
+    question: state.processedInput,
+    context: state.context,
+    previousAnswer: state.output,
+  });
+
+  const output = improvedOutput.trim();
+
+  const responseRetryCount = state.responseRetryCount + 1;
+
+  console.log("\nRegenerated Response:");
+
+  console.log(output);
+
+  console.log("Response Retry Count:", responseRetryCount);
+
+  return {
+    output,
+    responseRetryCount,
   };
 }
 

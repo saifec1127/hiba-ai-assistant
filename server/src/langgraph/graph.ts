@@ -9,9 +9,11 @@ import {
   improveInputNode,
   loadHistoryNode,
   processInputNode,
+  regenerateResponseNode,
   retrieveContextNode,
   saveHistoryNode,
   validateContextNode,
+  validateResponseNode,
 } from "./nodes";
 
 function routeAfterValidation(state: GraphStateType) {
@@ -24,6 +26,18 @@ function routeAfterValidation(state: GraphStateType) {
   }
 
   return "improveInput";
+}
+
+function routeAfterResponseValidation(state: GraphStateType) {
+  if (state.isResponseValid) {
+    return "saveHistory";
+  }
+
+  if (state.responseRetryCount >= 2) {
+    return "saveHistory";
+  }
+
+  return "regenerateResponse";
 }
 
 const workflow = new StateGraph(GraphState)
@@ -39,6 +53,10 @@ const workflow = new StateGraph(GraphState)
   .addNode("improveInput", improveInputNode)
 
   .addNode("generateResponse", generateResponseNode)
+
+  .addNode("validateResponse", validateResponseNode)
+
+  .addNode("regenerateResponse", regenerateResponseNode)
 
   .addNode("saveHistory", saveHistoryNode)
 
@@ -57,7 +75,14 @@ const workflow = new StateGraph(GraphState)
 
   .addEdge("improveInput", "retrieveContext")
 
-  .addEdge("generateResponse", "saveHistory")
+  .addEdge("generateResponse", "validateResponse")
+
+  .addConditionalEdges("validateResponse", routeAfterResponseValidation, [
+    "saveHistory",
+    "regenerateResponse",
+  ])
+
+  .addEdge("regenerateResponse", "validateResponse")
 
   .addEdge("saveHistory", END);
 
