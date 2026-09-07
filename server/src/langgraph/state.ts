@@ -1,7 +1,5 @@
 import { Annotation } from "@langchain/langgraph";
-
 import type { Document } from "@langchain/core/documents";
-
 
 export const GraphState = Annotation.Root({
   input: Annotation<string>,
@@ -16,9 +14,15 @@ export const GraphState = Annotation.Root({
 
   context: Annotation<string>,
 
+  isContextRelevant: Annotation<boolean>,
+
+  retryCount: Annotation<number>,
+
   output: Annotation<string>,
+
+  isResponseValid: Annotation<boolean>,
+
+  responseRetryCount: Annotation<number>,
 });
 
-
-export type GraphStateType =
-  typeof GraphState.State;
+export type GraphStateType = typeof GraphState.State;

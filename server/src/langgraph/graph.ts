@@ -1,80 +1,64 @@
-import {
-  END,
-  START,
-  StateGraph,
-} from "@langchain/langgraph";
+import { END, START, StateGraph } from "@langchain/langgraph";
 
-import {
-  GraphState,
-} from "./state";
+import { GraphState } from "./state";
+
+import type { GraphStateType } from "./state";
 
 import {
   generateResponseNode,
+  improveInputNode,
   loadHistoryNode,
   processInputNode,
   retrieveContextNode,
   saveHistoryNode,
+  validateContextNode,
 } from "./nodes";
 
+function routeAfterValidation(state: GraphStateType) {
+  if (state.isContextRelevant) {
+    return "generateResponse";
+  }
 
-const workflow =
-  new StateGraph(GraphState)
+  if (state.retryCount >= 2) {
+    return "generateResponse";
+  }
 
-    .addNode(
-      "loadHistory",
-      loadHistoryNode
-    )
+  return "improveInput";
+}
 
-    .addNode(
-      "processInput",
-      processInputNode
-    )
+const workflow = new StateGraph(GraphState)
 
-    .addNode(
-      "retrieveContext",
-      retrieveContextNode
-    )
+  .addNode("loadHistory", loadHistoryNode)
 
-    .addNode(
-      "generateResponse",
-      generateResponseNode
-    )
+  .addNode("processInput", processInputNode)
 
-    .addNode(
-      "saveHistory",
-      saveHistoryNode
-    )
+  .addNode("retrieveContext", retrieveContextNode)
 
-    .addEdge(
-      START,
-      "loadHistory"
-    )
+  .addNode("validateContext", validateContextNode)
 
-    .addEdge(
-      "loadHistory",
-      "processInput"
-    )
+  .addNode("improveInput", improveInputNode)
 
-    .addEdge(
-      "processInput",
-      "retrieveContext"
-    )
+  .addNode("generateResponse", generateResponseNode)
 
-    .addEdge(
-      "retrieveContext",
-      "generateResponse"
-    )
+  .addNode("saveHistory", saveHistoryNode)
 
-    .addEdge(
-      "generateResponse",
-      "saveHistory"
-    )
+  .addEdge(START, "loadHistory")
 
-    .addEdge(
-      "saveHistory",
-      END
-    );
+  .addEdge("loadHistory", "processInput")
 
+  .addEdge("processInput", "retrieveContext")
 
-export const applicationGraph =
-  workflow.compile();
+  .addEdge("retrieveContext", "validateContext")
+
+  .addConditionalEdges("validateContext", routeAfterValidation, [
+    "generateResponse",
+    "improveInput",
+  ])
+
+  .addEdge("improveInput", "retrieveContext")
+
+  .addEdge("generateResponse", "saveHistory")
+
+  .addEdge("saveHistory", END);
+
+export const applicationGraph = workflow.compile();

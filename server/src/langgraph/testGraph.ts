@@ -1,95 +1,31 @@
 import "dotenv/config";
 
-import {
-  runApplicationGraph,
-} from "./runGraph";
+import { runApplicationGraph } from "./runGraph";
 
 async function run() {
-  const sessionId =
-    "langgraph-followup-test";
+  const sessionId = "langgraph-retrieval-test";
 
+  const input = "tell all phuphus name of hiba";
 
-  console.log(
-    "\n=============================="
-  );
+  console.log("\n==============================");
 
-  console.log(
-    "LANGGRAPH FOLLOW-UP TEST"
-  );
+  console.log("LANGGRAPH RETRIEVAL TEST");
 
-  console.log(
-    "=============================="
-  );
+  console.log("==============================");
 
+  console.log("\nInput:");
+  console.log(input);
 
-  // ========================================
-  // QUESTION 1
-  // ========================================
+  const output = await runApplicationGraph(input, sessionId);
 
-  const question1 =
-    "Who is Hiba's father?";
+  console.log("\nFinal Output:");
+  console.log(output);
 
-  console.log(
-    "\nQuestion 1:"
-  );
-
-  console.log(question1);
-
-
-  const answer1 =
-    await runApplicationGraph(
-      question1,
-      sessionId
-    );
-
-
-  console.log(
-    "\nAnswer 1:"
-  );
-
-  console.log(answer1);
-
-
-  // ========================================
-  // QUESTION 2
-  // Same session
-  // ========================================
-
-  const question2 =
-    "And mother?";
-
-  console.log(
-    "\nQuestion 2:"
-  );
-
-  console.log(question2);
-
-
-  const answer2 =
-    await runApplicationGraph(
-      question2,
-      sessionId
-    );
-
-
-  console.log(
-    "\nAnswer 2:"
-  );
-
-  console.log(answer2);
-
-
-  console.log(
-    "\n=============================="
-  );
+  console.log("\n==============================");
 }
 
-
 run().catch((error) => {
-  console.error(
-    "Graph test failed:",
-    error
-  );
+  console.error("Graph test failed:", error);
 
   process.exit(1);
 });
