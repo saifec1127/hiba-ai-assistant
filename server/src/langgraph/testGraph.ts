@@ -5,7 +5,7 @@ import { runApplicationGraph } from "./runGraph";
 async function run() {
   const sessionId = "langgraph-retrieval-test";
 
-  const input = "tell all phuphus name of hiba";
+  const input = "hibas phuphus name?";
 
   console.log("\n==============================");
 

@@ -35,16 +35,19 @@ Rules:
 
 1. Return "GOOD" only if the context contains enough information to fully answer the question.
 
-2. Pay special attention to questions asking for:
-   - all names
-   - all people
-   - every item
-   - a list
-   - multiple entities
+2. Pay special attention to:
+   - all
+   - every
+   - list
+   - names
+   - plural people or relationships
 
-3. If the question asks for multiple items, the context must contain enough information to provide the complete requested answer.
+3. A plural request such as "phuphus", "aunts", "brothers",
+   "sisters", or "names" should be treated as requesting
+   all matching entities available in the knowledge base.
 
-4. Do not return "GOOD" merely because one partially relevant fact is present.
+4. Do not return "GOOD" just because one matching person exists
+   when the question is plural.
 
 5. Return "POOR" if:
    - required information is missing,
@@ -175,24 +178,30 @@ Rules:
 
 3. The answer must not invent information.
 
-4. If the user asks for:
-   - all names
-   - all people
-   - every item
-   - a list
-   - multiple entities
+4. If the user's question is plural, such as asking about:
+   - phuphus
+   - aunts
+   - brothers
+   - sisters
+   - names
+   - multiple people
+   - all items
 
-   then the answer must include all relevant information available in the context.
+   then the answer must include all matching entities present
+   in the retrieved context.
 
-5. Return "POOR" if the answer:
+5. Do not return "GOOD" if the answer gives only one person
+   while the context contains multiple matching people.
+
+6. Return "POOR" if the answer:
    - misses important information,
    - only partially answers the question,
    - contains unsupported information,
    - or does not directly answer the question.
 
-6. Do not rewrite or answer the question yourself.
+7. Do not rewrite or answer the question yourself.
 
-7. Return exactly one word:
+8. Return exactly one word:
 
 GOOD
 

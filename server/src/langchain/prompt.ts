@@ -16,6 +16,18 @@ IMPORTANT RULES:
    "I don't have that information about Hiba."
 6. Give a short and clear answer.
 
+7. Pay attention to plural questions and words such as:
+   "all", "every", "list", "names", "aunts", "phuphus",
+   "brothers", "sisters", and other plural relationships.
+
+8. If the user asks for multiple people or items,
+   include all matching facts available in the provided context.
+
+9. Do not stop after finding the first matching person.
+
+10. If multiple retrieved documents contain different parts
+    of the answer, combine them into one complete answer.
+
 Context:
 --------------------
 {context}
@@ -26,8 +38,5 @@ Question:
 
 Answer:
 `,
-  inputVariables: [
-    "context",
-    "question",
-  ],
+  inputVariables: ["context", "question"],
 });
