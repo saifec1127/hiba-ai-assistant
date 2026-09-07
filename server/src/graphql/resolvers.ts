@@ -1,6 +1,4 @@
-import {
-  runApplicationGraph,
-} from "../langgraph/runGraph";
+import { runApplicationGraph } from "../langgraph/runGraph";
 
 type AskInput = {
   question: string;
@@ -9,18 +7,8 @@ type AskInput = {
 
 export const resolvers = {
   Query: {
-    askHiba: async (
-      _: unknown,
-      {
-        question,
-        sessionId,
-      }: AskInput
-    ) => {
-      const answer =
-        await runApplicationGraph(
-          question,
-          sessionId
-        );
+    askHiba: async (_: unknown, { question, sessionId }: AskInput) => {
+      const answer = await runApplicationGraph(question, sessionId);
 
       return {
         answer,
