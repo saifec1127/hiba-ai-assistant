@@ -1,4 +1,11 @@
-import { askHiba } from "../langchain/askHiba";
+import {
+  runApplicationGraph,
+} from "../langgraph/runGraph";
+
+type AskInput = {
+  question: string;
+  sessionId: string;
+};
 
 export const resolvers = {
   Query: {
@@ -7,13 +14,10 @@ export const resolvers = {
       {
         question,
         sessionId,
-      }: {
-        question: string;
-        sessionId: string;
-      }
+      }: AskInput
     ) => {
       const answer =
-        await askHiba(
+        await runApplicationGraph(
           question,
           sessionId
         );
