@@ -1,4 +1,4 @@
-import { END, START, StateGraph } from "@langchain/langgraph";
+import { END, START, StateGraph, MemorySaver } from "@langchain/langgraph";
 
 import { GraphState } from "./state";
 
@@ -48,6 +48,8 @@ function routeAfterInputImprovement(state: GraphStateType) {
 
   return "fallbackResponse";
 }
+
+const checkpointer = new MemorySaver();
 
 const workflow = new StateGraph(GraphState)
 
@@ -105,4 +107,6 @@ const workflow = new StateGraph(GraphState)
 
   .addEdge("saveHistory", END);
 
-export const applicationGraph = workflow.compile();
+export const applicationGraph = workflow.compile({
+  checkpointer,
+});

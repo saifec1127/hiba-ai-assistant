@@ -1,27 +1,75 @@
 import "dotenv/config";
 
 import { runApplicationGraph } from "./runGraph";
+import { applicationGraph } from "./graph";
 
 async function run() {
-  const sessionId = "langgraph-retrieval-test";
+  const sessionId = "langgraph-checkpoint-test";
 
-  const input = "What is Hiba's favorite toy?";
+  // =====================================
+  // FIRST QUESTION
+  // =====================================
 
-  console.log("\n==============================");
+  console.log("\nFIRST QUESTION");
 
-  console.log("LANGGRAPH RETRIEVAL TEST");
+  const firstOutput = await runApplicationGraph(
+    "Who is Hiba's father?",
+    sessionId,
+  );
 
-  console.log("==============================");
+  console.log("First Output:", firstOutput);
 
-  console.log("\nInput:");
-  console.log(input);
+  // Read checkpoint after first graph run
+  const firstCheckpoint = await applicationGraph.getState({
+    configurable: {
+      thread_id: sessionId,
+    },
+  });
 
-  const output = await runApplicationGraph(input, sessionId);
+  console.log("\nCHECKPOINT AFTER FIRST QUESTION:");
 
-  console.log("\nFinal Output:");
-  console.log(output);
+  console.log({
+    input: firstCheckpoint.values.input,
 
-  console.log("\n==============================");
+    sessionId: firstCheckpoint.values.sessionId,
+
+    processedInput: firstCheckpoint.values.processedInput,
+
+    output: firstCheckpoint.values.output,
+
+    retryCount: firstCheckpoint.values.retryCount,
+  });
+
+  // =====================================
+  // SECOND QUESTION
+  // =====================================
+
+  console.log("\nSECOND QUESTION");
+
+  const secondOutput = await runApplicationGraph("And mother?", sessionId);
+
+  console.log("Second Output:", secondOutput);
+
+  // Read checkpoint after second graph run
+  const secondCheckpoint = await applicationGraph.getState({
+    configurable: {
+      thread_id: sessionId,
+    },
+  });
+
+  console.log("\nCHECKPOINT AFTER SECOND QUESTION:");
+
+  console.log({
+    input: secondCheckpoint.values.input,
+
+    sessionId: secondCheckpoint.values.sessionId,
+
+    processedInput: secondCheckpoint.values.processedInput,
+
+    output: secondCheckpoint.values.output,
+
+    retryCount: secondCheckpoint.values.retryCount,
+  });
 }
 
 run().catch((error) => {
