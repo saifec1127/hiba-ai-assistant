@@ -2,11 +2,11 @@ import { PromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { model } from "../langchain/model";
 
-import {
-  addToChatHistory,
-  formatChatHistory,
-  getChatHistory,
-} from "../langchain/chatHistory";
+// import {
+//   addToChatHistory,
+//   formatChatHistory,
+//   getChatHistory,
+// } from "../langchain/chatHistory";
 
 import { rewriteQuestion } from "../langchain/questionRewriter";
 
@@ -305,10 +305,24 @@ const responseImprovementChain = responseImprovementPrompt
 // Load conversation history
 // ========================================
 
-export async function loadHistoryNode(state: GraphStateType) {
-  const history = getChatHistory(state.sessionId);
+// export async function loadHistoryNode(state: GraphStateType) {
+//   const history = getChatHistory(state.sessionId);
 
-  const historyText = formatChatHistory(history);
+//   const historyText = formatChatHistory(history);
+
+//   return {
+//     historyText,
+//   };
+// }
+
+export async function loadHistoryNode(state: GraphStateType) {
+  const historyText = state.messages
+    .map((message) => {
+      const speaker = message.role === "user" ? "User" : "Assistant";
+
+      return `${speaker}: ${message.content}`;
+    })
+    .join("\n");
 
   return {
     historyText,
@@ -469,16 +483,31 @@ export async function fallbackResponseNode(state: GraphStateType) {
 // Save conversation
 // ========================================
 
+// export async function saveHistoryNode(state: GraphStateType) {
+//   addToChatHistory(state.sessionId, {
+//     role: "user",
+//     content: state.input,
+//   });
+
+//   addToChatHistory(state.sessionId, {
+//     role: "assistant",
+//     content: state.output,
+//   });
+
+//   return {};
+// }
+
 export async function saveHistoryNode(state: GraphStateType) {
-  addToChatHistory(state.sessionId, {
-    role: "user",
-    content: state.input,
-  });
-
-  addToChatHistory(state.sessionId, {
-    role: "assistant",
-    content: state.output,
-  });
-
-  return {};
+  return {
+    messages: [
+      {
+        role: "user" as const,
+        content: state.input,
+      },
+      {
+        role: "assistant" as const,
+        content: state.output,
+      },
+    ],
+  };
 }

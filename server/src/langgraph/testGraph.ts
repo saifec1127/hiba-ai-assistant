@@ -4,7 +4,7 @@ import { runApplicationGraph } from "./runGraph";
 import { applicationGraph } from "./graph";
 
 async function run() {
-  const sessionId = "langgraph-checkpoint-test";
+  const sessionId = "langgraph-native-history-test";
 
   // =====================================
   // FIRST QUESTION
@@ -30,14 +30,12 @@ async function run() {
 
   console.log({
     input: firstCheckpoint.values.input,
-
     sessionId: firstCheckpoint.values.sessionId,
-
     processedInput: firstCheckpoint.values.processedInput,
-
     output: firstCheckpoint.values.output,
-
     retryCount: firstCheckpoint.values.retryCount,
+
+    messages: firstCheckpoint.values.messages,
   });
 
   // =====================================
@@ -61,14 +59,12 @@ async function run() {
 
   console.log({
     input: secondCheckpoint.values.input,
-
     sessionId: secondCheckpoint.values.sessionId,
-
     processedInput: secondCheckpoint.values.processedInput,
-
     output: secondCheckpoint.values.output,
-
     retryCount: secondCheckpoint.values.retryCount,
+
+    messages: secondCheckpoint.values.messages,
   });
 }
 

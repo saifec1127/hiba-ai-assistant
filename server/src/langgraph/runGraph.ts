@@ -8,6 +8,7 @@ export async function runApplicationGraph(
     {
       input,
       sessionId,
+      messages: [],
       historyText: "",
       processedInput: "",
       documents: [],
