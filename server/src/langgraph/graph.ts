@@ -41,6 +41,14 @@ function routeAfterResponseValidation(state: GraphStateType) {
   return "regenerateResponse";
 }
 
+function routeAfterInputImprovement(state: GraphStateType) {
+  if (state.isQueryImproved) {
+    return "retrieveContext";
+  }
+
+  return "fallbackResponse";
+}
+
 const workflow = new StateGraph(GraphState)
 
   .addNode("loadHistory", loadHistoryNode)
@@ -77,7 +85,12 @@ const workflow = new StateGraph(GraphState)
     "fallbackResponse",
   ])
 
-  .addEdge("improveInput", "retrieveContext")
+  // .addEdge("improveInput", "retrieveContext")
+
+  .addConditionalEdges("improveInput", routeAfterInputImprovement, [
+    "retrieveContext",
+    "fallbackResponse",
+  ])
 
   .addEdge("generateResponse", "validateResponse")
 

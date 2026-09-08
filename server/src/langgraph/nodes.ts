@@ -113,6 +113,9 @@ Rules:
 4. Use clear English terms that are likely to appear in documents.
 5. Do not answer the question.
 6. Return only the improved search query.
+7. The improved query MUST be meaningfully different from the current processed query.
+8. If useful, add synonyms, alternate relationship terms,
+   descriptive keywords, or related search terms.
 
 Examples:
 
@@ -132,26 +135,68 @@ const inputImprovementChain = inputImprovementPrompt
   .pipe(model)
   .pipe(new StringOutputParser());
 
+// export async function improveInputNode(state: GraphStateType) {
+//   const improvedInput = await inputImprovementChain.invoke({
+//     originalInput: state.input,
+//     processedInput: state.processedInput,
+//     historyText: state.historyText,
+//   });
+
+//   const processedInput = improvedInput.trim().replace(/^["']|["']$/g, "");
+
+//   const retryCount = state.retryCount + 1;
+
+//   console.log("\nImproved Search Query:");
+
+//   console.log(processedInput);
+
+//   console.log("Retry Count:", retryCount);
+
+//   return {
+//     processedInput,
+//     retryCount,
+//   };
+// }
+
 export async function improveInputNode(state: GraphStateType) {
+  const currentInput = state.processedInput.trim();
+
   const improvedInput = await inputImprovementChain.invoke({
     originalInput: state.input,
-    processedInput: state.processedInput,
+    processedInput: currentInput,
     historyText: state.historyText,
   });
 
   const processedInput = improvedInput.trim().replace(/^["']|["']$/g, "");
 
+  const normalizedCurrentInput = currentInput
+    .toLowerCase()
+    .replace(/[?.!,]/g, "")
+    .trim();
+
+  const normalizedImprovedInput = processedInput
+    .toLowerCase()
+    .replace(/[?.!,]/g, "")
+    .trim();
+
+  const isQueryImproved = normalizedCurrentInput !== normalizedImprovedInput;
+
   const retryCount = state.retryCount + 1;
 
-  console.log("\nImproved Search Query:");
+  console.log("\nCurrent Search Query:");
+  console.log(currentInput);
 
+  console.log("\nImproved Search Query:");
   console.log(processedInput);
+
+  console.log("Query Actually Changed:", isQueryImproved);
 
   console.log("Retry Count:", retryCount);
 
   return {
     processedInput,
     retryCount,
+    isQueryImproved,
   };
 }
 
@@ -402,21 +447,15 @@ export async function regenerateResponseNode(state: GraphStateType) {
   };
 }
 
-
 // ========================================
 // FALLBACK NODE
 // Used when relevant information is not found
 // ========================================
 
-export async function fallbackResponseNode(
-  state: GraphStateType
-) {
-  const output =
-    "I don't have that information about Hiba.";
+export async function fallbackResponseNode(state: GraphStateType) {
+  const output = "I don't have that information about Hiba.";
 
-  console.log(
-    "\nFallback Response:"
-  );
+  console.log("\nFallback Response:");
 
   console.log(output);
 

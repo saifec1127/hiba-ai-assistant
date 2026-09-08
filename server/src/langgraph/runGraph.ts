@@ -7,14 +7,25 @@ export async function runApplicationGraph(
   const result = await applicationGraph.invoke({
     input,
     sessionId,
+
     historyText: "",
+
     processedInput: "",
+
     documents: [],
+
     context: "",
+
     isContextRelevant: false,
+
     retryCount: 0,
+
+    isQueryImproved: false,
+
     output: "",
+
     isResponseValid: false,
+
     responseRetryCount: 0,
   });
 

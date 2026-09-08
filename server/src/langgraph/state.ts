@@ -18,6 +18,8 @@ export const GraphState = Annotation.Root({
 
   retryCount: Annotation<number>,
 
+  isQueryImproved: Annotation<boolean>,
+
   output: Annotation<string>,
 
   isResponseValid: Annotation<boolean>,
