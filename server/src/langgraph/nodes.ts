@@ -402,6 +402,29 @@ export async function regenerateResponseNode(state: GraphStateType) {
   };
 }
 
+
+// ========================================
+// FALLBACK NODE
+// Used when relevant information is not found
+// ========================================
+
+export async function fallbackResponseNode(
+  state: GraphStateType
+) {
+  const output =
+    "I don't have that information about Hiba.";
+
+  console.log(
+    "\nFallback Response:"
+  );
+
+  console.log(output);
+
+  return {
+    output,
+  };
+}
+
 // ========================================
 // NODE 5
 // Save conversation

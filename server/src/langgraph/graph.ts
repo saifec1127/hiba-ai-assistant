@@ -5,6 +5,7 @@ import { GraphState } from "./state";
 import type { GraphStateType } from "./state";
 
 import {
+  fallbackResponseNode,
   generateResponseNode,
   improveInputNode,
   loadHistoryNode,
@@ -22,7 +23,7 @@ function routeAfterValidation(state: GraphStateType) {
   }
 
   if (state.retryCount >= 2) {
-    return "generateResponse";
+    return "fallbackResponse";
   }
 
   return "improveInput";
@@ -58,6 +59,8 @@ const workflow = new StateGraph(GraphState)
 
   .addNode("regenerateResponse", regenerateResponseNode)
 
+  .addNode("fallbackResponse", fallbackResponseNode)
+
   .addNode("saveHistory", saveHistoryNode)
 
   .addEdge(START, "loadHistory")
@@ -71,6 +74,7 @@ const workflow = new StateGraph(GraphState)
   .addConditionalEdges("validateContext", routeAfterValidation, [
     "generateResponse",
     "improveInput",
+    "fallbackResponse",
   ])
 
   .addEdge("improveInput", "retrieveContext")
@@ -83,6 +87,8 @@ const workflow = new StateGraph(GraphState)
   ])
 
   .addEdge("regenerateResponse", "validateResponse")
+
+  .addEdge("fallbackResponse", "saveHistory")
 
   .addEdge("saveHistory", END);
 
