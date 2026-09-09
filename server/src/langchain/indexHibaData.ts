@@ -7,93 +7,57 @@ import { splitHibaDocuments } from "../data/hibaTextSplitter";
 async function indexHibaData() {
   console.log("Loading Hiba documents...");
 
-  const chunks =
-    await splitHibaDocuments();
+  const chunks = await splitHibaDocuments();
 
-  console.log(
-    `Total chunks: ${chunks.length}`
-  );
+  console.log(`Total chunks: ${chunks.length}`);
 
   if (chunks.length === 0) {
-    throw new Error(
-      "No Hiba chunks found."
-    );
+    throw new Error("No Hiba chunks found.");
   }
 
-  const texts = chunks.map(
-    (chunk) => chunk.pageContent
-  );
+  const texts = chunks.map((chunk) => chunk.pageContent);
 
-  console.log(
-    "Generating OpenAI embeddings..."
-  );
+  console.log("Generating OpenAI embeddings...");
 
-  const vectors =
-    await embeddings.embedDocuments(texts);
+  const vectors = await embeddings.embedDocuments(texts);
 
-  console.log(
-    `Total embeddings generated: ${vectors.length}`
-  );
+  console.log(`Total embeddings generated: ${vectors.length}`);
 
-  if (
-    vectors.length !== chunks.length
-  ) {
-    throw new Error(
-      "Chunks and embeddings count do not match."
-    );
+  if (vectors.length !== chunks.length) {
+    throw new Error("Chunks and embeddings count do not match.");
   }
 
-  const records = chunks.map(
-    (chunk, index) => {
-      const vector = vectors[index];
+  const records = chunks.map((chunk, index) => {
+    const vector = vectors[index];
 
-      if (!vector) {
-        throw new Error(
-          `Missing embedding for chunk ${index}`
-        );
-      }
-
-      return {
-        id: `hiba-chunk-${index}`,
-        values: vector,
-        metadata: {
-          text: chunk.pageContent,
-
-          source: String(
-            chunk.metadata.source ?? ""
-          ),
-
-          category: String(
-            chunk.metadata.category ?? ""
-          ),
-        },
-      };
+    if (!vector) {
+      throw new Error(`Missing embedding for chunk ${index}`);
     }
-  );
 
-  console.log(
-    `Prepared ${records.length} Pinecone records.`
-  );
+    return {
+      id: `hiba-chunk-${index}`,
+      values: vector,
+      metadata: {
+        text: chunk.pageContent,
 
-  console.log(
-    "Uploading records to Pinecone..."
-  );
+        source: String(chunk.metadata.source ?? ""),
 
-  await pineconeIndex.upsert({
-    records,
-    namespace: "hiba",
+        category: String(chunk.metadata.category ?? ""),
+      },
+    };
   });
 
-  console.log(
-    "Hiba data uploaded successfully."
-  );
+  console.log(`Prepared ${records.length} Pinecone records.`);
+
+  console.log("Uploading records to Pinecone...");
+
+  await pineconeIndex.namespace("hiba").upsert(records);
+
+  console.log("Hiba data uploaded successfully.");
 }
 
 indexHibaData().catch((error) => {
-  console.error(
-    "Pinecone indexing failed:",
-    error
-  );
+  console.error("Pinecone indexing failed:", error);
 
   process.exit(1);
 });

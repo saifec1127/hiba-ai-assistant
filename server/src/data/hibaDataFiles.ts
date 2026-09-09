@@ -25,6 +25,10 @@ export const hibaDataFiles: HibaDataFile[] = [
     category: "extended-family",
   },
   {
+    fileName: "hiba-afeera-family-facts.md",
+    category: "afeera-family-facts",
+  },
+  {
     fileName: "hiba-words-nicknames.md",
     category: "words-nicknames",
   },
