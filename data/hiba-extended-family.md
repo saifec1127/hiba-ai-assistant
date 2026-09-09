@@ -26,7 +26,7 @@ Her siblings, from elder to younger as recorded, are:
 
 Sheemu has four children:
 
-1. Khuda - eldest daughter
+1. Huda - eldest daughter
 2. Yaman
 3. Maaz
 4. Hadiya
