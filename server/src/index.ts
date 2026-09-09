@@ -8,12 +8,20 @@ import { resolvers } from "./graphql/resolvers";
 
 import { initializeHibaVectorStore } from "./langchain/vectorStore";
 
+import { setupCheckpointer } from "./langgraph/checkpointer";
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
 });
 
 async function startServer() {
+  console.log("Initializing MongoDB checkpointer...");
+
+  await setupCheckpointer();
+
+  console.log("MongoDB checkpointer initialized.");
+
   console.log("Initializing Hiba AI knowledge...");
 
   await initializeHibaVectorStore();
@@ -31,5 +39,6 @@ async function startServer() {
 
 startServer().catch((error) => {
   console.error("Failed to start server:", error);
+
   process.exit(1);
 });

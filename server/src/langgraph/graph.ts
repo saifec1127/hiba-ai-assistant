@@ -1,4 +1,6 @@
-import { END, START, StateGraph, MemorySaver } from "@langchain/langgraph";
+import { END, START, StateGraph } from "@langchain/langgraph";
+
+import { checkpointer } from "./checkpointer";
 
 import { GraphState } from "./state";
 
@@ -49,7 +51,7 @@ function routeAfterInputImprovement(state: GraphStateType) {
   return "fallbackResponse";
 }
 
-const checkpointer = new MemorySaver();
+// const checkpointer = new MemorySaver();
 
 const workflow = new StateGraph(GraphState)
 
